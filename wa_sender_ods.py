@@ -1,49 +1,50 @@
 import pandas as pd
 
-# Read the file for contact list and for appointment list
-contact_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Contatti', header=1)
-
-#Add a column with the full name of each contact
-contact_list['Full Name'] = (contact_list['Cognome'] + ' ' + contact_list['Nome']).str.strip()
-
 days_list = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica']
 
 # Extract the email list for 7 days
 for i in range(7):
+    # Read the file of the right year
+    year = str(pd.Timestamp.today().date().year)
+    contact_list = pd.read_excel('Appointment_Schedule_'+str(pd.Timestamp.today().date().year)+'.ods', engine='odf', sheet_name='Contatti', header=1)
+    
+    # Add a column to the file in order to have the full name of the contact
+    contact_list['Full Name'] = (contact_list['Cognome'] + ' ' + contact_list['Nome']).str.strip()
+    
+    # Read the sheet of the right month
+    match pd.Timestamp.today().date().month:
+        case 1:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Gennaio', header=1)
+        case 2:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Febbraio', header=1)
+        case 3:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Marzo', header=1)
+        case 4:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Aprile', header=1)
+        case 5:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Maggio', header=1)
+        case 6:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Giugno', header=1)
+        case 7:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Luglio', header=1)
+        case 8:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Agosto', header=1)
+        case 9:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Settembre', header=1)
+        case 10:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Ottobre', header=1)
+        case 11:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Novembre', header=1)
+        case 12:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Dicembre', header=1)
+        case _:
+            appointments_list = pd.read_excel('Appointment_Schedule_'+year+'.ods', engine='odf', sheet_name='Gennaio', header=1)
+    
+    # Extract the appointments for the day i (where i goes from 0 to 6 -> today to 7 days after)
     day_of_today = days_list[(pd.Timestamp.today().date().isoweekday() - 1 + i) % 7] + ' ' + str((pd.Timestamp.today().date() + pd.Timedelta(days=i)).day)
     print(day_of_today)
-    match pd.Timestamp.today().date().month:
-        case "1":
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Gennaio', header=1)
-        case "2":
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Febbraio', header=1)
-        case "3":
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Marzo', header=1)
-        case "4":
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Aprile', header=1)
-        case "5":
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Maggio', header=1)
-        case "6":
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Giugno', header=1)
-        case "7":
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Luglio', header=1)
-        case "8":
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Agosto', header=1)
-        case "9":
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Settembre', header=1)
-        case "10":
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Ottobre', header=1)
-        case "11":
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Novembre', header=1)
-        case "12":
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Dicembre', header=1)
-        case _:
-            appointments_list = pd.read_excel('Appointment_Schedule_2025.ods', engine='odf', sheet_name='Gennaio', header=1)
-
-    
-    
-    # Extract the appointments for the day i
     appointments_day_i = appointments_list[appointments_list['Giorno'] == day_of_today]
+
 
     #################################
     ##### First slot 09:30-11:00 ####
