@@ -1,4 +1,5 @@
 import pandas as pd
+import pywhatkit as kit
 
 days_list = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica']
 
@@ -62,7 +63,7 @@ for i in range(7):
     for customer in names_day_i_first_slot:
         for contact in  list(contact_list['Full Name']):
             if customer == contact:
-                email_list_first_slot.append(str(contact_list[contact_list['Full Name'] == contact]['Numero Cellulare'].values[0]))
+                email_list_first_slot.append(str(int(contact_list[contact_list['Full Name'] == contact]['Numero Cellulare'].values[0])))
 
 
     ###################################
@@ -81,7 +82,7 @@ for i in range(7):
     for customer in names_day_i_second_slot:
         for contact in  list(contact_list['Full Name']):
             if customer == contact:
-                email_list_second_slot.append(str(contact_list[contact_list['Full Name'] == contact]['Numero Cellulare'].values[0]))
+                email_list_second_slot.append(str(int(contact_list[contact_list['Full Name'] == contact]['Numero Cellulare'].values[0])))
 
 
     ###################################
@@ -100,7 +101,7 @@ for i in range(7):
     for customer in names_day_i_third_slot:
         for contact in  list(contact_list['Full Name']):
             if customer == contact:
-                email_list_third_slot.append(str(contact_list[contact_list['Full Name'] == contact]['Numero Cellulare'].values[0]))
+                email_list_third_slot.append(str(int(contact_list[contact_list['Full Name'] == contact]['Numero Cellulare'].values[0])))
 
 
     ###################################
@@ -119,10 +120,29 @@ for i in range(7):
     for customer in names_day_i_fourth_slot:
         for contact in  list(contact_list['Full Name']):
             if customer == contact:
-                email_list_fourth_slot.append(str(contact_list[contact_list['Full Name'] == contact]['Numero Cellulare'].values[0]))
+                email_list_fourth_slot.append(str(int(contact_list[contact_list['Full Name'] == contact]['Numero Cellulare'].values[0])))
 
-    # Print the resulting email list
+    
+    wait_time = 10
+    wa_message = 'Ciao,\nti ricordiamo il tuo appuntamento del ' + day_of_today + ' alle ore 9:30-11:00. \n A presto! CentroFit'
     print(email_list_first_slot)
+    for number in email_list_first_slot:
+        kit.sendwhatmsg_instantly('+'+str(number), wa_message, 4, True)
+
+
+    wa_message = 'Ciao, ti ricordo il tuo appuntamento di ' + day_of_today + ' alle ore 11:00-12:30'
     print(email_list_second_slot)
+    for number in email_list_second_slot:
+        kit.sendwhatmsg_instantly('+'+str(number), wa_message, 4, True)
+    
+
+    wa_message = 'Ciao, ti ricordo il tuo appuntamento di ' + day_of_today + ' alle ore 14:00-15:30'
     print(email_list_third_slot)
+    for number in email_list_third_slot:
+        kit.sendwhatmsg_instantly('+'+str(number), wa_message, 4, True)
+
+
+    wa_message = 'Ciao, ti ricordo il tuo appuntamento di ' + day_of_today + ' alle ore 15:30-17:00'
     print(email_list_fourth_slot)
+    for number in email_list_fourth_slot:
+        kit.sendwhatmsg_instantly('+'+str(number), wa_message, 4, True)
