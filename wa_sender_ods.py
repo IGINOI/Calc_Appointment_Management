@@ -32,8 +32,6 @@ for i in range(7):
 
     
     # Extract the appointments for the day i (where i goes from 0 to 6 -> today to 7 days after)
-    
-    
     appointments_day_i = appointments_list[appointments_list['Giorno'] == appointment_day]
 
 
