@@ -25,7 +25,7 @@ def extract_phone_numbers_per_slot(names_day_i_slot_i, contact_list):
     return phone_numbers_list_slot_i
 
 # send_message -> used to send the messagges using whatsapp
-def send_message(phone_number_list: list, appointment_day: str, appointment_time_slot: str):
+def send_message(phone_number_list, appointment_day, appointment_time_slot):
     wa_message = 'Ciao, ti ricordiamo il tuo appuntamento del ' + appointment_day + ' alle ore ' + appointment_time_slot + '. A presto! CentroFit'
     for number in phone_number_list:
         #kit.sendwhatmsg_instantly('+'+str(number), wa_message, 4, True)
@@ -39,7 +39,9 @@ def send_message(phone_number_list: list, appointment_day: str, appointment_time
 # Create arrays used in the code to avoid hardcoding
 months_list = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
 days_list = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica']
-time_slots_list = ['8:30-10:00', '10:30-12:00', '12:00-13:30', '14:30-16:00', '16:00-17:30', '17:30-19:00']
+#time_slots_list = ['8:30-10:00', '10:30-12:00', '12:00-13:30', '14:30-16:00', '16:00-17:30', '17:30-19:00']
+
+ciao = input('1-Lunedì, 2-Martedì, 3-Mercoledì, 4-Giovedì, 5-Venerdì, 6-Sabato, 7-Domenica.\nInserisci il numero che corrisponde al giorno: ')
 
 # Loop over the next 7 days to send the messages
 for i in range(7):
@@ -61,6 +63,8 @@ for i in range(7):
 
     # Extract the appointments for the day i
     appointments_day_i = appointments_list[appointments_list['Giorno'] == appointment_day]
+    time_slots_list = list(appointments_day_i['Ora'])
+    print(time_slots_list)
 
     # Extract the phone numbers
     phone_numbers_day_i = []
