@@ -2,20 +2,19 @@ import pandas as pd
 import pywhatkit as kit
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 
 ###########################
 ### FUNCTION DEFINITION ###
 ###########################
 
 # extract_names_per_slot -> used to extract the names of the customers for a specific time slot
-def extract_names_per_slot(appointments_day_i, time_slot):
+def extract_names_per_slot(appointments_day_i, time_slot, employee_names):
     appointments_day_i_slot_i = appointments_day_i[appointments_day_i['Ora'] == time_slot]
-    return (
-        list(appointments_day_i_slot_i['Marcus']) +
-        list(appointments_day_i_slot_i['Jaqueline']) +
-        list(appointments_day_i_slot_i['Antonio']) +
-        list(appointments_day_i_slot_i['Giuseppe'])
-    )
+    names_day_i_slot_i = []
+    for employee in employee_names:
+        names_day_i_slot_i += list(appointments_day_i_slot_i[employee])
+    return (names_day_i_slot_i)
 
 # extract_phone_numbers_per_slot -> used to extract the phone numbers of the customers for a specific time slot
 def extract_phone_numbers_per_slot(names_day_i_slot_i, contact_list):
@@ -41,12 +40,13 @@ def send_message(phone_number_list, appointment_day, appointment_time_slot):
 # Create arrays used in the code to avoid hardcoding
 months_list = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
 days_list = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica']
+employee_names = ['Marcus', 'Jaqueline', 'Antonio', 'Giuseppe']
 
 range_of_days = 14
 week_days_from_now_on = []
 for i in range(range_of_days):
     week_day = days_list[(pd.Timestamp.today().date().isoweekday()+i) % 7] 
-    week_days_from_now_on.append(week_day + str((pd.Timestamp.today().date() + pd.Timedelta(days=i+1)).day))
+    week_days_from_now_on.append(week_day + ' ' + str((pd.Timestamp.today().date() + pd.Timedelta(days=i+1)).day))
 
 selected_indexes = []
 ###########################
@@ -67,22 +67,42 @@ def start_gui():
         # Save the selected indexes and close the GUI
         root.destroy()
 
-    root = tk.Tk()
-    root.title("Select Week Days")
-    root.geometry("400x600")
+    def on_close():
+        # Ask the user for confirmation before closing
+        if messagebox.askyesno("Confirm Exit", "Are you sure you want to exit?"):
+            selected_indexes.clear()  # Clear the selected indexes
+            root.destroy()  # Close the window
 
-    # Create toggle buttons for each day
+    
+    root = tk.Tk()
+    root.title("Select Days for Appointments")
+    root.geometry("500x400")
+    root.protocol("WM_DELETE_WINDOW", on_close)
+
+    # Create a style for the GUI
+    style = ttk.Style()
+    style.configure("TCheckbutton", font=("Helvetica", 12))
+    style.configure("TButton", font=("Helvetica", 14))
+
+    # Add a label at the top
+    title_label = ttk.Label(root, text="Select the Days to Send Notifications", font=("Helvetica", 14, "bold"))
+    title_label.pack(pady=10)
+
+    # Create a frame for the day selection grid
+    grid_frame = ttk.Frame(root)
+    grid_frame.pack(pady=10)
+
+    # Create toggle buttons for each day in a grid layout
     toggle_vars = []
     for i, day in enumerate(week_days_from_now_on):
         var = tk.IntVar(value=0)  # 0 = off, 1 = on
         toggle_vars.append(var)
-        toggle_button = tk.Checkbutton(root, text=day, variable=var, onvalue=1, offvalue=0, 
-                                       command=lambda idx=i: on_toggle(idx), width=12, anchor='w')
-        toggle_button.grid(row=i, column=0, padx=5, pady=5, sticky='w')
+        toggle_button = ttk.Checkbutton(grid_frame, text=day, variable=var, command=lambda idx=i: on_toggle(idx))
+        toggle_button.grid(row=i % 7, column=i // 7, padx=10, pady=5, sticky='w')  # Arrange in columns of 7
 
-    # Add "Send Messages" button
-    send_button = tk.Button(root, text="Send Messages", command=send_message, bg="green", fg="white", width=15)
-    send_button.grid(row=len(week_days_from_now_on), column=0, pady=10)
+    # Add "Send Messages" button at the bottom
+    send_button = ttk.Button(root, text="Send Messages", command=send_message)
+    send_button.pack(pady=20)
 
     root.mainloop()
 
@@ -96,7 +116,6 @@ if __name__ == "__main__":
 
 wanted_days = []
 position_today = days_list.index(days_list[(pd.Timestamp.today().date().isoweekday()) % 7 - 1]) #lun=0 dom=6
-print(position_today)
 
 for i in selected_indexes:
     if i==0:
@@ -134,7 +153,7 @@ for i in wanted_days:
     # Extract the phone numbers
     phone_numbers_day_i = []
     for i in range(len(time_slots_list)):
-        names_day_i_slot_i = extract_names_per_slot(appointments_day_i, time_slots_list[0])
+        names_day_i_slot_i = extract_names_per_slot(appointments_day_i, time_slots_list[0], employee_names)
         phone_numbers_list_slot_i = extract_phone_numbers_per_slot(names_day_i_slot_i, contact_list)
         phone_numbers_day_i.append(phone_numbers_list_slot_i)
 
