@@ -1,5 +1,7 @@
 import pandas as pd
 import pywhatkit as kit
+import tkinter as tk
+from tkinter import ttk
 
 ###########################
 ### FUNCTION DEFINITION ###
@@ -39,12 +41,33 @@ def send_message(phone_number_list, appointment_day, appointment_time_slot):
 # Create arrays used in the code to avoid hardcoding
 months_list = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre']
 days_list = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica']
-#time_slots_list = ['8:30-10:00', '10:30-12:00', '12:00-13:30', '14:30-16:00', '16:00-17:30', '17:30-19:00']
 
-ciao = input('1-Lunedì, 2-Martedì, 3-Mercoledì, 4-Giovedì, 5-Venerdì, 6-Sabato, 7-Domenica.\nInserisci il numero che corrisponde al giorno: ')
+range_of_days = 14
 
-# Loop over the next 7 days to send the messages
-for i in range(7):
+for i in range(range_of_days):
+    week_day = days_list[(pd.Timestamp.today().date().isoweekday()+i) % 7] #lun=1 dom=7
+    print(str(i+1), '->', week_day, str((pd.Timestamp.today().date() + pd.Timedelta(days=i+1)).day))
+
+day_to_send = input('0 -> Tutti i prossimi '+str(range_of_days)+' giorni\nSeguendo la lista sopraindicata, inserisci il numero che corrisponde ai giorni degli appuntamenti: ')
+day_to_send_list = map(int, day_to_send.split())
+
+position_today = days_list.index(days_list[(pd.Timestamp.today().date().isoweekday()) % 7 - 1]) #lun=0 dom=6
+print(position_today) #today -> 1
+##CORRECT TILL HERE
+
+wanted_days = []
+for i in day_to_send_list: #i: 1, 2, 3, 7
+    if i==0:
+        for j in range(1,8): #j: 0->6
+            wanted_days.append(((j) - position_today) % range_of_days + 1) #wanted_days: 1, 2, 3, 4, 5, 6, 7
+    else:
+        print("You asked for: ", i, "and today day position is: ", position_today)
+        wanted_days.append((int(i) - position_today) % range_of_days + 1) #wanted_days: 1, 2, 3, 7
+        
+print(wanted_days)
+
+# Loop over the wanted days to send the messages
+for i in wanted_days: #i: 1, 2, 3, 7
     # Find: year - month - month_day - week_day - appointment_day(in the wanted format) for each of the next 7 days
     year = (pd.Timestamp.today().date() + pd.Timedelta(days=i)).year
     month = months_list[(pd.Timestamp.today().date() + pd.Timedelta(days=i)).month -1]
