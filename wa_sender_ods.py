@@ -35,7 +35,7 @@ def send_message(phone_number_list, appointment_day, appointment_time_slot):
 
 
 ###########################
-######## MAIN PART ########
+######## MAIN PART 1 ######
 ###########################
 
 # Create arrays used in the code to avoid hardcoding
@@ -43,31 +43,73 @@ months_list = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Lu
 days_list = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica']
 
 range_of_days = 14
-
+week_days_from_now_on = []
 for i in range(range_of_days):
-    week_day = days_list[(pd.Timestamp.today().date().isoweekday()+i) % 7] #lun=1 dom=7
-    print(str(i+1), '->', week_day, str((pd.Timestamp.today().date() + pd.Timedelta(days=i+1)).day))
+    week_day = days_list[(pd.Timestamp.today().date().isoweekday()+i) % 7] 
+    week_days_from_now_on.append(week_day + str((pd.Timestamp.today().date() + pd.Timedelta(days=i+1)).day))
 
-day_to_send = input('0 -> Tutti i prossimi '+str(range_of_days)+' giorni\nSeguendo la lista sopraindicata, inserisci il numero che corrisponde ai giorni degli appuntamenti: ')
-day_to_send_list = map(int, day_to_send.split())
+selected_indexes = []
+###########################
+####### GUI LOGIC #########
+###########################
+def start_gui():
+    def on_toggle(index):
+        # Toggle the index in the selected list
+        adjusted_index = index + 1  # Adjust index to start from 1
+        if adjusted_index in selected_indexes:
+            selected_indexes.remove(adjusted_index)
+            toggle_vars[index].set(0)  # Unselect the toggle button
+        else:
+            selected_indexes.append(adjusted_index)
+            toggle_vars[index].set(1)  # Select the toggle button
 
-position_today = days_list.index(days_list[(pd.Timestamp.today().date().isoweekday()) % 7 - 1]) #lun=0 dom=6
-print(position_today) #today -> 1
-##CORRECT TILL HERE
+    def send_message():
+        # Save the selected indexes and close the GUI
+        root.destroy()
+
+    root = tk.Tk()
+    root.title("Select Week Days")
+    root.geometry("400x600")
+
+    # Create toggle buttons for each day
+    toggle_vars = []
+    for i, day in enumerate(week_days_from_now_on):
+        var = tk.IntVar(value=0)  # 0 = off, 1 = on
+        toggle_vars.append(var)
+        toggle_button = tk.Checkbutton(root, text=day, variable=var, onvalue=1, offvalue=0, 
+                                       command=lambda idx=i: on_toggle(idx), width=12, anchor='w')
+        toggle_button.grid(row=i, column=0, padx=5, pady=5, sticky='w')
+
+    # Add "Send Messages" button
+    send_button = tk.Button(root, text="Send Messages", command=send_message, bg="green", fg="white", width=15)
+    send_button.grid(row=len(week_days_from_now_on), column=0, pady=10)
+
+    root.mainloop()
+
+if __name__ == "__main__":
+    start_gui()
+
+
+###########################
+######## MAIN PART 2 ######
+###########################
 
 wanted_days = []
-for i in day_to_send_list: #i: 1, 2, 3, 7
+position_today = days_list.index(days_list[(pd.Timestamp.today().date().isoweekday()) % 7 - 1]) #lun=0 dom=6
+print(position_today)
+
+for i in selected_indexes:
     if i==0:
-        for j in range(1,8): #j: 0->6
-            wanted_days.append(((j) - position_today) % range_of_days + 1) #wanted_days: 1, 2, 3, 4, 5, 6, 7
+        for j in range(1,range_of_days+1):
+            wanted_days.append(((j) - position_today) % range_of_days + 1)
     else:
         print("You asked for: ", i, "and today day position is: ", position_today)
-        wanted_days.append((int(i) - position_today) % range_of_days + 1) #wanted_days: 1, 2, 3, 7
-        
-print(wanted_days)
+        wanted_days.append((int(i) - position_today) % range_of_days + 1)
+wanted_days.sort()
+print("ciao", wanted_days)
 
 # Loop over the wanted days to send the messages
-for i in wanted_days: #i: 1, 2, 3, 7
+for i in wanted_days:
     # Find: year - month - month_day - week_day - appointment_day(in the wanted format) for each of the next 7 days
     year = (pd.Timestamp.today().date() + pd.Timedelta(days=i)).year
     month = months_list[(pd.Timestamp.today().date() + pd.Timedelta(days=i)).month -1]
