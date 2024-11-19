@@ -30,7 +30,7 @@ def send_message(phone_number_list, appointment_day, appointment_time_slot):
     wa_message = 'Ciao, ti ricordiamo il tuo appuntamento del ' + appointment_day + ' alle ore ' + appointment_time_slot + '. A presto! CentroFit'
     for number in phone_number_list:
         # kit.sendwhatmsg_instantly('+'+str(number), wa_message, 4, True)
-        # print(wa_message)
+        print(wa_message)
 
 
 #####################################
